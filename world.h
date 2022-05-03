@@ -1,6 +1,7 @@
 #pragma once
 #include "olcPixelGameEngine.h"
 #include "olcPGEX_TransformedView.h"
+#include "player.h"
 #include "vector"
 namespace World {
 	class Tile {
@@ -27,8 +28,13 @@ namespace World {
 		const float GRAVITATIONAL_ACCELERATION = 10.0f;
 	private:
 		std::vector<Tile*> tiles;
+		GameData::Player player;
 	public:
 		void LoadScene() {
+			//Load Player
+			player = GameData::Player();
+
+			//Test tile scene
 			for (int x = 0; x < 24; x++) {
 				tiles.push_back(new Tile({ x,0 }, 10));
 			}
@@ -43,12 +49,22 @@ namespace World {
 				}
 			}
 		}
+
 		void Draw(olc::TileTransformedView* tv) {
 			//Draw All Tiles
 			for (auto& t : tiles) {
 				t->Draw(tv);
 			}
+
+			//Draw Player
+			player.Draw(tv);
 		}
+
+		void Update(olc::PixelGameEngine* pge, olc::TileTransformedView* tv, float fElapsedTime) {
+			player.Update(pge, tv, fElapsedTime);
+
+		}
+
 		~Scene() {
 			//Delete all scene tiles
 			for (auto &t:  tiles) {

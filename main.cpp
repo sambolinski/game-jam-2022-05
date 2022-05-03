@@ -18,7 +18,6 @@ public:
 private:
 	olc::TileTransformedView tv;
 	World::Scene scene;
-	GameData::Player player;
 public:
 public:
 	bool OnUserCreate() override
@@ -33,8 +32,7 @@ public:
 	bool OnUserUpdate(float fElapsedTime) override
 	{
 		Clear(olc::VERY_DARK_BLUE);
-		player.Update(this, &tv, fElapsedTime);
-		player.Draw(&tv);
+		scene.Update(this, &tv, fElapsedTime);
 		scene.Draw(&tv);
 		return true;
 	}
