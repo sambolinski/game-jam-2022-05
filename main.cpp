@@ -1,37 +1,49 @@
 #define OLC_PGE_APPLICATION
 #include "olcPixelGameEngine.h"
 
+#define OLC_PGEX_TRANSFORMEDVIEW
+#include "olcPGEX_TransformedView.h"
+#include "object.h"
+#include "world.h"
+
 // Override base class with your custom functionality
-class Example : public olc::PixelGameEngine
+class Game : public olc::PixelGameEngine
 {
 public:
-	Example()
+	Game()
 	{
 		// Name your application
 		sAppName = "Example";
 	}
-
+private:
+	olc::TileTransformedView tv;
+	World::Scene scene;
+	GameData::Player player;
+public:
 public:
 	bool OnUserCreate() override
 	{
-		// Called once at the start, so create things here
+		tv = olc::TileTransformedView({ ScreenWidth(),ScreenHeight() }, {1,1});
+		tv.SetWorldOffset({ 0,0});
+
+		scene.LoadScene();
 		return true;
 	}
 
 	bool OnUserUpdate(float fElapsedTime) override
 	{
-		// Called once per frame, draws random coloured pixels
-		for (int x = 0; x < ScreenWidth(); x++)
-			for (int y = 0; y < ScreenHeight(); y++)
-				Draw(x, y, olc::Pixel(rand() % 256, rand() % 256, rand() % 256));
+		Clear(olc::VERY_DARK_BLUE);
+		player.Update(this, &tv, fElapsedTime);
+		player.Draw(&tv);
+		scene.Draw(&tv);
 		return true;
 	}
 };
 
 int main()
 {
-	Example demo;
-	if (demo.Construct(256, 240, 4, 4))
+	Game demo;
+	if (demo.Construct(241, 241, 4, 4))
 		demo.Start();
 	return 0;
 }
