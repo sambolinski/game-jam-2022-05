@@ -21,6 +21,8 @@ namespace GameData {
 		void Draw(olc::TileTransformedView* tv) override {
 			tv->FillRect(pos, { 10, 10 }, olc::VERY_DARK_RED);
 		}
+
+		//Handles player control
 		void Update(olc::PixelGameEngine* pge, olc::TileTransformedView* tv, float fElapsedTime) override {
 			if (pge->GetKey(olc::Key::W).bHeld)  vel += { 0, -1};
 			if (pge->GetKey(olc::Key::A).bHeld)  vel += {-1, 0};

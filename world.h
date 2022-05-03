@@ -4,6 +4,7 @@
 #include "player.h"
 #include "vector"
 namespace World {
+	//Base tile class, different tile types should inherit this base class,
 	class Tile {
 		olc::vi2d pos; //pos is an int as scene is tile based
 		int size;
@@ -21,8 +22,9 @@ namespace World {
 		
 		}
 	};
-	class Scene {
 
+	//Main Scene class, will handle tile layout, player, and scene updates.
+	class Scene {
 	public:
 		//Scene Constants
 		const float GRAVITATIONAL_ACCELERATION = 10.0f;
@@ -51,7 +53,7 @@ namespace World {
 		}
 
 		void Draw(olc::TileTransformedView* tv) {
-			//Draw All Tiles
+			//Draw all Tiles
 			for (auto& t : tiles) {
 				t->Draw(tv);
 			}
@@ -62,7 +64,6 @@ namespace World {
 
 		void Update(olc::PixelGameEngine* pge, olc::TileTransformedView* tv, float fElapsedTime) {
 			player.Update(pge, tv, fElapsedTime);
-
 		}
 
 		~Scene() {
