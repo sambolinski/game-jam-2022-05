@@ -48,10 +48,13 @@ namespace World {
 		}
 
 		void Update(olc::PixelGameEngine* pge, olc::TileTransformedView* tv, float fElapsedTime) {
-			// Update the player velocity
+			// Update the player
 			player.Update(pge, tv, fElapsedTime);
+
 			//HandleCollision
 			HandleCollisions(fElapsedTime);
+
+			//Update positions
 			player.UpdatePosition(fElapsedTime);
 		}
 

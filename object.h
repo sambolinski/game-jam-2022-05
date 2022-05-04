@@ -18,6 +18,9 @@ namespace olc
 
 			virtual void Draw(olc::TileTransformedView* tv) {};
 			virtual void Update(olc::PixelGameEngine* pge, olc::TileTransformedView* tv, float fElapsedTime) {};
+			void UpdatePosition(float fElapsedTime) {
+				pos += vel * fElapsedTime;
+			};
 		};
 
 		bool PointVsRect(const olc::vf2d& p, const olc::aabb::rect* r)

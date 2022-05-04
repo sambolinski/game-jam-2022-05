@@ -26,8 +26,4 @@ public:
 		if (pge->GetKey(olc::Key::S).bHeld)  vel += { 0, 0.1f};
 		if (pge->GetKey(olc::Key::D).bHeld)  vel += { 0.1f, 0};
 	}
-
-	void UpdatePosition(float fElapsedTime) {
-		pos += vel * fElapsedTime;
-	}
 };
