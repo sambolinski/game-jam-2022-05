@@ -1,27 +1,10 @@
 #pragma once
 #include "olcPixelGameEngine.h"
 #include "olcPGEX_TransformedView.h"
+#include "object.h"
 #include "player.h"
 #include "vector"
 namespace World {
-	//Base tile class, different tile types should inherit this base class,
-	class Tile {
-		olc::vi2d pos; //pos is an int as scene is tile based
-		int size;
-	public:
-		Tile(olc::vi2d p, int sz) {
-			pos = p;
-			size = sz;
-		}
-		void Draw(olc::TileTransformedView* tv) {
-			olc::vd2d formattedPos(pos * size);
-			olc::vd2d formattedSize(size, size);
-			tv->DrawRect(formattedPos, formattedSize);
-			tv->DrawLine(formattedPos, formattedPos + formattedSize);
-			tv->DrawLine(olc::vd2d(formattedPos.x, formattedPos.y+ formattedSize.y ), olc::vd2d(formattedPos.x+ formattedSize.x, formattedPos.y ));
-		
-		}
-	};
 
 	//Main Scene class, will handle tile layout, player, and scene updates.
 	class Scene {
@@ -29,33 +12,35 @@ namespace World {
 		//Scene Constants
 		const float GRAVITATIONAL_ACCELERATION = 10.0f;
 	private:
-		std::vector<Tile*> tiles;
-		GameData::Player player;
+		std::map<std::pair<int,int>,Tile*>level;
+		Player player;
 	public:
 		void LoadScene() {
+			//default size for rects
+			olc::vd2d size({ 1,1 });
 			//Load Player
-			player = GameData::Player();
+			player = Player({ 2,5 }, size);
 
 			//Test tile scene
 			for (int x = 0; x < 24; x++) {
-				tiles.push_back(new Tile({ x,0 }, 10));
+				level[std::pair<int,int>(x,0)] = new Tile(size * olc::vd2d{x * 1.0f , 0}, size);
 			}
 			for (int x = 0; x < 7; x++) {
 				for (int y = 15; y < 24; y++) {
-					tiles.push_back(new Tile({ x,y }, 10));
+					level[std::pair<int, int>(x, y)] = new Tile(size * olc::vd2d{ x * 1.0f , y * 1.0f }, size);
 				}
 			}
 			for (int x = 17; x < 24; x++) {
 				for (int y = 15; y < 24; y++) {
-					tiles.push_back(new Tile({ x,y }, 10));
+					level[std::pair<int, int>(x, y)] = new Tile(size * olc::vd2d{ x * 1.0f , y*1.0f }, size);
 				}
 			}
 		}
 
 		void Draw(olc::TileTransformedView* tv) {
 			//Draw all Tiles
-			for (auto& t : tiles) {
-				t->Draw(tv);
+			for (auto t : level) {
+				t.second->Draw(tv);
 			}
 
 			//Draw Player
@@ -63,15 +48,51 @@ namespace World {
 		}
 
 		void Update(olc::PixelGameEngine* pge, olc::TileTransformedView* tv, float fElapsedTime) {
+			// Update the player velocity
 			player.Update(pge, tv, fElapsedTime);
+			//HandleCollision
+			HandleCollisions(fElapsedTime);
+			player.UpdatePosition(fElapsedTime);
+		}
+
+		void HandleCollisions(float fElapsedTime) {
+			olc::vf2d cp, cn;
+			float t = 0, min_t = INFINITY;
+			std::vector<std::pair<std::pair<int,int>, float>> z;
+
+			// Work out collision point, add it to vector along with rect ID
+			//Only check in range next to player
+			olc::vi2d playerTile((int)(player.pos.x), (int)(player.pos.y));
+			int i = 0;
+			for (int x = playerTile.x - 2; x <= playerTile.x + 2; x++) {
+				for (int y = playerTile.y - 2; y <= playerTile.y + 2; y++) {
+					if (level.count(std::pair<int, int>(x, y)) == 0) {
+						continue;
+					}
+					if (olc::aabb::DynamicRectVsRect(&player, fElapsedTime,  *level[std::pair<int, int>(x, y)], cp, cn, t))
+					{
+						z.push_back({ {x,y}, t });
+					}
+					i++;
+				}
+			}
+
+			std::sort(z.begin(), z.end(), [](const std::pair<std::pair<int, int>, float>& a, const std::pair<std::pair<int, int>, float>& b)
+				{
+					return a.second < b.second;
+				});
+
+			// Now resolve the collision in correct order 
+			for (auto j : z)
+				olc::aabb::ResolveDynamicRectVsRect(&player, fElapsedTime, level[j.first]);
 		}
 
 		~Scene() {
 			//Delete all scene tiles
-			for (auto &t:  tiles) {
-				delete t;
+			for (auto &t:  level) {
+				delete t.second;
 			}
-			tiles.clear();
+			level.clear();
 		}
 	};
-}
+};

@@ -22,7 +22,7 @@ public:
 public:
 	bool OnUserCreate() override
 	{
-		tv = olc::TileTransformedView({ ScreenWidth(),ScreenHeight() }, {1,1});
+		tv = olc::TileTransformedView({ ScreenWidth(),ScreenHeight() }, {10,10});
 		tv.SetWorldOffset({ 0,0});
 
 		scene.LoadScene();

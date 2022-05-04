@@ -3,38 +3,31 @@
 #include "olcPGEX_TransformedView.h"
 #include "object.h"
 
-namespace GameData {
-	class Player : public GameData::Object {
-	private:
-		olc::vd2d pos;
-		olc::vd2d vel;
-	public:
-		Player() {
-			Player({ 0,0 });
-		}
-		Player(olc::vd2d p) {
-			pos = p;
-			vel = { 0,0 };
-		}
+class Player : public olc::aabb::rect {
+public:
+	Player() {
+		Player({ 0,0 }, {10,10});
+	}
+	Player(olc::vd2d p, olc::vd2d sz) {
+		pos = p;
+		size = sz;
+		vel = { 0,0 };
+	}
 
-		//Interface Implementation
-		void Draw(olc::TileTransformedView* tv) override {
-			tv->FillRect(pos, { 10, 10 }, olc::VERY_DARK_RED);
-		}
+	//Interface Implementation
+	void Draw(olc::TileTransformedView* tv) override {
+		tv->FillRect(pos, size, olc::VERY_DARK_RED);
+	}
 
-		//Handles player control
-		void Update(olc::PixelGameEngine* pge, olc::TileTransformedView* tv, float fElapsedTime) override {
-			if (pge->GetKey(olc::Key::W).bHeld)  vel += { 0, -1};
-			if (pge->GetKey(olc::Key::A).bHeld)  vel += {-1, 0};
-			if (pge->GetKey(olc::Key::S).bHeld)  vel += { 0, 1};
-			if (pge->GetKey(olc::Key::D).bHeld)  vel += { 1, 0};
-			pos += vel * fElapsedTime;
-		}
+	//Handles player control
+	void Update(olc::PixelGameEngine* pge, olc::TileTransformedView* tv, float fElapsedTime) override {
+		if (pge->GetKey(olc::Key::W).bHeld)  vel += { 0, -0.1f};
+		if (pge->GetKey(olc::Key::A).bHeld)  vel += {-0.1f, 0};
+		if (pge->GetKey(olc::Key::S).bHeld)  vel += { 0, 0.1f};
+		if (pge->GetKey(olc::Key::D).bHeld)  vel += { 0.1f, 0};
+	}
 
-		//Helpers
-
-		olc::vd2d GetPos() const {
-			return pos;
-		}
-	};
-}
+	void UpdatePosition(float fElapsedTime) {
+		pos += vel * fElapsedTime;
+	}
+};
