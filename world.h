@@ -3,6 +3,7 @@
 #include "olcPGEX_TransformedView.h"
 #include "object.h"
 #include "player.h"
+#include "physics.h"
 #include "vector"
 namespace World {
 
@@ -10,16 +11,19 @@ namespace World {
 	class Scene {
 	public:
 		//Scene Constants
-		const float GRAVITATIONAL_ACCELERATION = 10.0f;
+		const olc::vd2d gravity = { 0.0f,10.0f };
 	private:
 		std::map<std::pair<int,int>,Tile*>level;
 		Player player;
+		physics::Rope rope;
 	public:
 		void LoadScene() {
 			//default size for rects
 			olc::vd2d size({ 1,1 });
 			//Load Player
 			player = Player({ 2,5 }, size);
+
+			rope = physics::Rope();
 
 			//Test tile scene
 			for (int x = 0; x < 24; x++) {
@@ -45,11 +49,22 @@ namespace World {
 
 			//Draw Player
 			player.Draw(tv);
+
+			rope.Draw(tv);
 		}
 
 		void Update(olc::PixelGameEngine* pge, olc::TileTransformedView* tv, float fElapsedTime) {
+			
+			//Follow player
+				//tv->SetWorldOffset(player.pos + olc::vd2d(-12,-12));
 			// Update the player
+
+			rope.Update(fElapsedTime, gravity, true);
+
+			//Update positions
+			player.ApplyForce(gravity);
 			player.Update(pge, tv, fElapsedTime);
+			player.UpdateVelocity(fElapsedTime);
 
 			//HandleCollision
 			HandleCollisions(fElapsedTime);

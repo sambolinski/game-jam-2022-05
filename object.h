@@ -11,6 +11,7 @@ namespace olc
 			olc::vf2d pos;
 			olc::vf2d size;
 			olc::vf2d vel;
+			olc::vf2d force;
 #
 			//INVESTIGATE POSSIBLE MEM LEAK WITH THIS
 			std::array<olc::aabb::rect*, 4> contact;
@@ -18,9 +19,17 @@ namespace olc
 
 			virtual void Draw(olc::TileTransformedView* tv) {};
 			virtual void Update(olc::PixelGameEngine* pge, olc::TileTransformedView* tv, float fElapsedTime) {};
+			void UpdateVelocity(float fElapsedTime) {
+				vel += force * fElapsedTime;
+				force = { 0, 0 };
+			};
 			void UpdatePosition(float fElapsedTime) {
 				pos += vel * fElapsedTime;
 			};
+
+			void ApplyForce(olc::vd2d f) {
+				force += f;
+			}
 		};
 
 		bool PointVsRect(const olc::vf2d& p, const olc::aabb::rect* r)
